@@ -30,3 +30,11 @@ WHERE d.id = 1
 
 -- Bonus - update manager by employee
 UPDATE employee SET employee.manager_id=2 WHERE employee.id = 3
+
+-- Bonus - view employees by manager
+SELECT * FROM employee WHERE manager_id = 2
+
+-- Bonus - delete records
+DELETE FROM employee WHERE id = 1
+DELETE FROM role WHERE id = 1
+DELETE FROM department WHERE id = 1
