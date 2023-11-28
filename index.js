@@ -12,7 +12,6 @@ const questionMainMenu =[
             'View All Departments',
             'Add Department',
             'Quit',
-            ''
         ]
     },
 ]
