@@ -5,10 +5,11 @@ const questionMainMenu =[
         message: 'What would you like to do?',
         choices:
         [
-            'View All Employees',
-            'Add Employee',
+            'View All Employees', // if chosen, run query to show all employee info
+            'Add Employee', // if chosen run the prompts questionAddEmployee
             'Update Employee Role',
             'View All Roles',
+            'Add a Role',
             'View All Departments',
             'Add Department',
             'Quit',
@@ -24,6 +25,7 @@ const questionAddDept = [
         
     },
 ]
+
 const questionAddRole = [
     {
         type: 'input',
@@ -41,7 +43,7 @@ const questionAddRole = [
         message: 'Which department does the role belong to?',
         choices:
         [
-//populate department.name here
+        //populate department.name query here
         ]
     },
 ]
@@ -62,13 +64,7 @@ const questionAddEmpl = [
         message: "What is the employee's role?",
         choices:
         [
-            'Sales Lead',
-            'Salesperson',
-            'Lead Engineer',
-            'SoftwareEngineer',
-            'Account Manager',
-            'Accountant',
-            'Legal Team Lead'
+        // populate with role title query
         ]
     },
     {
@@ -77,7 +73,7 @@ const questionAddEmpl = [
         message: "Who is the employee's manager?",
         choices:
         [
-        // populate from manager table
+        // populate from manager query
         ]
     }
 ]
