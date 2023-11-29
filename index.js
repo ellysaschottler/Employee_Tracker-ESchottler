@@ -1,3 +1,78 @@
+const inquirer =  require('inquirer');
+const mysql = require('mysql2/promise')
+//const cTable = require('console.table')
+
+const db = await mysql.createConnection(
+    {
+        host: 'localhost',
+        user: 'root',
+        password: '',
+        database: 'employee_db'
+    },
+    console.log('Connected to employee_db')
+);
+
+function init() {
+    inquirer.prompt(questionMainMenu).then((answers) => {
+      
+        if (answers = "View All Employees"){
+            db.query("SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name , ' ', m.last_name) AS manager FROM employee AS e INNER JOIN role AS r ON e.role_id = r.id INNER JOIN department AS d ON d.id = r.department_id LEFT JOIN employee AS m ON e.manager_id = m.id",
+            function (err, results){
+            console.log(results);})
+        
+        }
+        if (answers = "Add Employee"){
+            inquirer.prompt(questionAddEmpl).then((answers) => {
+                var splitManager = answers.manager.split(" ")
+                var managerFirstName = splitManager[0]
+                var managerLastName = splitManager [1]
+                var managerID = db.query("Select id FROM employee Where first_name = ? AND last_name = ?", [managerFirstName, managerLastName])
+
+                db.query("INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ?, ?, ?, ?" [answers.emplFirstName, answers.emplLastName, managerID, answers.emplRole])
+            }
+            console.log("This employee has been added")
+         )}
+        if (answers = "Update Employee Role"){
+            inquirer.prompt(questionUpdateRole).then((answers) => {
+            var splitEmployee = answers.employeeChoice.split(" ")
+            var employeeFirstName = splitEmployee[0]
+            var employeeLastName = splitEmployee[1]
+            var employeeID = db.query("SELECT id FROM employee WHERE first_name = ? AND last_name = ?", [employeeFirstName, employeeLastName])
+            var roleID = db.query("SELECT id FROM role WHERE title = ?", answers.roleChoice)
+            db.query("UPDATE employee SET role_id = ? WHERE employee.id = ?", [roleID, employeeID])
+            })
+        }
+        if (answers = "View All Roles"){
+            db.query("SELECT title FROM role")
+        }
+        if (answers = "Add a Role"){
+            inquirer.prompt(questionAddRole).then((answers) => {
+                
+
+            })
+            
+        }
+        if (answers = "View All Departments"){
+            db.query("SELECT name FROM department")
+        }
+        if (answers = "Add Department"){
+            inquirer.prompt(questionAddDept).then((answers) => {
+                
+
+            })
+            
+        }
+        if (answers = "Quit"){
+           
+        }        
+    });
+}
+
+//Initialize the app
+await init()
+
+
+
 const questionMainMenu =[
     {
         type: 'list',
@@ -43,7 +118,7 @@ const questionAddRole = [
         message: 'Which department does the role belong to?',
         choices:
         [
-        //populate department.name query here
+        db.query("SELECT name FROM department")
         ]
     },
 ]
@@ -55,7 +130,7 @@ const questionUpdateRole = [
         message: 'Which employee you like to update?',
         choices: 
         [
-         // populate employee list here
+        db.query("SELECT CONCAT(employee.first_name , ' ', employee.last_name) AS full_name FROM employee")
         ]
     },
     { 
@@ -64,19 +139,10 @@ const questionUpdateRole = [
         message: 'What is the new role?',
         choices:
         [
-            //populate role list here
+        db.query("SELECT title FROM role")
         ]
     },
-    { 
-        type: 'list',
-        name: 'roleDepartmentUpdate',
-        message: 'Which department oversees this role?',
-        choices: 
-        [
-         // populate department list here
-        ]
-    },
-
+    
 ]
 const questionAddEmpl = [
     {
@@ -95,7 +161,7 @@ const questionAddEmpl = [
         message: "What is the employee's role?",
         choices:
         [
-        // populate with role title query
+        db.query("SELECT title FROM role")
         ]
     },
     {
@@ -104,7 +170,7 @@ const questionAddEmpl = [
         message: "Who is the employee's manager?",
         choices:
         [
-        // populate from manager query
+        db.query("SELECT CONCAT(m.first_name , ' ', m.last_name) AS manager FROM employee AS e LEFT JOIN employee AS m ON e.manager_id = m.id WHERE m.first_name IS NOT NULL")
         ]
     }
 ]
