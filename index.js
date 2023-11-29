@@ -47,21 +47,25 @@ const questionAddRole = [
         ]
     },
 ]
-
+// THEN I am prompted to select an employee to update and their new role and this information is updated in the database
 const questionUpdateRole = [
    { 
         type: 'list',
-        name: 'roleUpdate',
-        message: 'Which would you like to update?',
+        name: 'employeeChoice',
+        message: 'Which employee you like to update?',
         choices: 
         [
-         // populate role list here
+         // populate employee list here
         ]
     },
     { 
-        type: 'input',
-        name: 'roleSalaryUpdate',
-        message: 'What is the updated salary for this role?',
+        type: 'list',
+        name: 'roleChoice',
+        message: 'What is the new role?',
+        choices:
+        [
+            //populate role list here
+        ]
     },
     { 
         type: 'list',

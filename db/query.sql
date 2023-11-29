@@ -21,6 +21,9 @@ SELECT name FROM department
 -- role title query
 SELECT title FROM role
 
+-- employee name query
+SELECT CONCAT(employee.first_name , ' ', employee.last_name) AS full_name FROM employee
+
 -- manager table query
 SELECT CONCAT(m.first_name , ' ', m.last_name) AS manager
 FROM employee AS e
