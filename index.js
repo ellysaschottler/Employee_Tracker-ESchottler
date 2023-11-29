@@ -7,11 +7,11 @@ const questionMainMenu =[
         [
             'View All Employees', // if chosen, run query to show all employee info
             'Add Employee', // if chosen run the prompts questionAddEmployee
-            'Update Employee Role',
-            'View All Roles',
-            'Add a Role',
-            'View All Departments',
-            'Add Department',
+            'Update Employee Role', // if chosen run the prompts questionUpdateRole
+            'View All Roles', // if chosen run query to show all roles
+            'Add a Role', // if chosen run prompts questionAddRole
+            'View All Departments', // if chosen, run query to show all departments
+            'Add Department', // if chosen run prompts questionAddDept
             'Quit',
         ]
     },
@@ -46,6 +46,33 @@ const questionAddRole = [
         //populate department.name query here
         ]
     },
+]
+
+const questionUpdateRole = [
+   { 
+        type: 'list',
+        name: 'roleUpdate',
+        message: 'Which would you like to update?',
+        choices: 
+        [
+         // populate role list here
+        ]
+    },
+    { 
+        type: 'input',
+        name: 'roleSalaryUpdate',
+        message: 'What is the updated salary for this role?',
+    },
+    { 
+        type: 'list',
+        name: 'roleDepartmentUpdate',
+        message: 'Which department oversees this role?',
+        choices: 
+        [
+         // populate department list here
+        ]
+    },
+
 ]
 const questionAddEmpl = [
     {
