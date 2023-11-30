@@ -1,8 +1,8 @@
 const inquirer =  require('inquirer');
-const mysql = require('mysql2/promise')
-//const cTable = require('console.table')
+const mysql = require('mysql2')
+const cTable = require('console.table')
 
-const db = await mysql.createConnection(
+const db = mysql.createConnection(
     {
         host: 'localhost',
         user: 'root',
@@ -16,17 +16,14 @@ function init() {
     inquirer.prompt(questionMainMenu).then((answers) => {
       
         if (answers = "View All Employees"){
-            db.query("SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name , ' ', m.last_name) AS manager FROM employee AS e INNER JOIN role AS r ON e.role_id = r.id INNER JOIN department AS d ON d.id = r.department_id LEFT JOIN employee AS m ON e.manager_id = m.id",
-            function (err, results){
-            console.log(results);})
-        
+            printAllEmployees()
         }
         if (answers = "Add Employee"){
             inquirer.prompt(questionAddEmpl).then((answers) => {
                 var splitManager = answers.manager.split(" ")
                 var managerFirstName = splitManager[0]
                 var managerLastName = splitManager [1]
-                var managerID = db.query("Select id FROM employee Where first_name = ? AND last_name = ?", [managerFirstName, managerLastName])
+                var managerID = db.query("SELECT id FROM employee WHERE first_name = ? AND last_name = ?", [managerFirstName, managerLastName])
 
                 db.query("INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ?, ?, ?, ?" [answers.emplFirstName, answers.emplLastName, managerID, answers.emplRole])
             }
@@ -43,22 +40,23 @@ function init() {
             })
         }
         if (answers = "View All Roles"){
-            db.query("SELECT title FROM role")
+            printAllRoles()
         }
         if (answers = "Add a Role"){
             inquirer.prompt(questionAddRole).then((answers) => {
-                
+            var deptID =  db.query("SELECT id FROM department WHERE name = ?", answers.deptName)
+            db.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)", [answers.roleName, answers.roleSalary, deptID])    
 
             })
             
         }
         if (answers = "View All Departments"){
-            db.query("SELECT name FROM department")
+            printAllDepartments()
         }
         if (answers = "Add Department"){
             inquirer.prompt(questionAddDept).then((answers) => {
-                
-
+                db.query("INSERT INTO department (name) VALUES (?),", answers.deptName)   
+                console.log("The department has been added.")
             })
             
         }
@@ -69,7 +67,7 @@ function init() {
 }
 
 //Initialize the app
-await init()
+init()
 
 
 
@@ -174,3 +172,25 @@ const questionAddEmpl = [
         ]
     }
 ]
+
+//Query functions
+function printAllEmployees(){
+    db.query("SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name , ' ', m.last_name) AS manager FROM employee AS e INNER JOIN role AS r ON e.role_id = r.id INNER JOIN department AS d ON d.id = r.department_id LEFT JOIN employee AS m ON e.manager_id = m.id", 
+    function (err, results) {
+        console.table(results)
+    }) 
+}
+
+function printAllRoles() {
+    db.query("SELECT title FROM role",
+    function (err, results) {
+        console.table(results)
+    })
+}
+
+function printAllDepartments() {
+    db.query("SELECT name FROM department",
+    function(err, results) {
+        console.table(results)
+    })
+}

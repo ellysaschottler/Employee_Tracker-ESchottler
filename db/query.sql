@@ -1,5 +1,5 @@
 
--- View All Employees
+-- View All Employees all info
 SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name , ' ', m.last_name) AS manager FROM employee AS e INNER JOIN role AS r ON e.role_id = r.id INNER JOIN department AS d ON d.id = r.department_id LEFT JOIN employee AS m ON e.manager_id = m.id
 
 -- View All Roles
@@ -11,23 +11,26 @@ Select * FROM department
 
 --------- TO Populate prompts
 
--- department name query
+-- all department names query
 SELECT name FROM department
 
--- role title query
+-- all role titles query
 SELECT title FROM role
 
--- employee name query
+-- all employee full names query
 SELECT CONCAT(employee.first_name , ' ', employee.last_name) AS full_name FROM employee
 
--- manager table query
+-- all managers full name table query
 SELECT CONCAT(m.first_name , ' ', m.last_name) AS manager FROM employee AS e LEFT JOIN employee AS m ON e.manager_id = m.id WHERE m.first_name IS NOT NULL
 
+-- department name to id query
+SELECT id FROM department WHERE name = ?
+
 -- manager name to id query
-Select id FROM employee Where first_name = managerFirstName AND last_name = managerLastName
+SELECT id FROM employee WHERE first_name = managerFirstName AND last_name = managerLastName
 
 --employee name to id query
-Select id FROM employee Where first_name = employeeFirstName AND last_name = employeeLastName
+SELECT id FROM employee WHERE first_name = employeeFirstName AND last_name = employeeLastName
 
 -- update employee role query
 UPDATE employee SET role_id = ? WHERE employee.id = ?
@@ -42,6 +45,7 @@ INSERT INTO department (name) VALUES (deptName)
  
 -- Create role
 INSERT INTO role (title, salary, department_id) VALUES (roleName, roleSalary, roleDept)
+
 
 
 ----Extra functionality
