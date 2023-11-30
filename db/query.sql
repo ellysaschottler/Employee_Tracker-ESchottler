@@ -23,6 +23,9 @@ SELECT CONCAT(employee.first_name , ' ', employee.last_name) AS full_name FROM e
 -- all managers full name table query
 SELECT CONCAT(m.first_name , ' ', m.last_name) AS manager FROM employee AS e LEFT JOIN employee AS m ON e.manager_id = m.id WHERE m.first_name IS NOT NULL
 
+-- role name to id query
+SELECT id FROM role WHERE name = ?
+
 -- department name to id query
 SELECT id FROM department WHERE name = ?
 

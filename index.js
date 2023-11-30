@@ -20,23 +20,11 @@ function init() {
         }
         if (answers = "Add Employee"){
             inquirer.prompt(questionAddEmpl).then((answers) => {
-                var splitManager = answers.manager.split(" ")
-                var managerFirstName = splitManager[0]
-                var managerLastName = splitManager [1]
-                var managerID = db.query("SELECT id FROM employee WHERE first_name = ? AND last_name = ?", [managerFirstName, managerLastName])
-
-                db.query("INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ?, ?, ?, ?" [answers.emplFirstName, answers.emplLastName, managerID, answers.emplRole])
-            }
-            console.log("This employee has been added")
-         )}
+            addEmployee()
+            }   
         if (answers = "Update Employee Role"){
             inquirer.prompt(questionUpdateRole).then((answers) => {
-            var splitEmployee = answers.employeeChoice.split(" ")
-            var employeeFirstName = splitEmployee[0]
-            var employeeLastName = splitEmployee[1]
-            var employeeID = db.query("SELECT id FROM employee WHERE first_name = ? AND last_name = ?", [employeeFirstName, employeeLastName])
-            var roleID = db.query("SELECT id FROM role WHERE title = ?", answers.roleChoice)
-            db.query("UPDATE employee SET role_id = ? WHERE employee.id = ?", [roleID, employeeID])
+            updateEmployeeRole()
             })
         }
         if (answers = "View All Roles"){
@@ -44,21 +32,15 @@ function init() {
         }
         if (answers = "Add a Role"){
             inquirer.prompt(questionAddRole).then((answers) => {
-            var deptID =  db.query("SELECT id FROM department WHERE name = ?", answers.deptName)
-            db.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)", [answers.roleName, answers.roleSalary, deptID])    
-
-            })
-            
+            addRole()            
+            })   
         }
         if (answers = "View All Departments"){
             printAllDepartments()
         }
         if (answers = "Add Department"){
             inquirer.prompt(questionAddDept).then((answers) => {
-                db.query("INSERT INTO department (name) VALUES (?),", answers.deptName)   
-                console.log("The department has been added.")
-            })
-            
+            addDepartment()
         }
         if (answers = "Quit"){
            
@@ -102,7 +84,7 @@ const questionAddDept = [
 const questionAddRole = [
     {
         type: 'input',
-        name: 'roleName',
+        name: 'roleChoice',
         message: 'What is the name of the role?',
     },
     {
@@ -193,4 +175,76 @@ function printAllDepartments() {
     function(err, results) {
         console.table(results)
     })
+}
+
+function getManagerIDfromName () {
+    var splitManager = answers.manager.split(" ")
+    var managerFirstName = splitManager[0]
+    var managerLastName = splitManager [1]
+    db.query("SELECT id FROM employee WHERE first_name = ? AND last_name = ?",
+     [managerFirstName, managerLastName],
+     function(err, results) {
+        return
+     })
+}
+function getRoleIDfromRoleTitle() {
+    db.query("SELECT id FROM role WHERE name = ?" answers.roleChoice,
+    function(err, results) {
+        return
+    })
+}
+
+function addEmployee() {
+    managerID = getManagerIDfromName()
+    roleID = getRoleIDfromRoleTitle()
+    db.query("INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ?, ?, ?, ?" [answers.emplFirstName, answers.emplLastName, managerID, roleID],
+    function (err, results) {
+        console.log("This employee has been added.")
+    }) 
+}
+
+function getEmployeeIDfromName() {
+    var splitEmployee = answers.employeeChoice.split(" ")
+    var employeeFirstName = splitEmployee[0]
+    var employeeLastName = splitEmployee[1]
+    db.query("SELECT id FROM employee WHERE first_name = ? AND last_name = ?",
+    [employeeFirstName, employeeLastName],
+    function(err, results) {
+        return
+    })
+}
+
+function updateEmployeeRole() {
+    var employeeID = getEmployeeIDfromName()
+    var roleID = getRoleIDfromRoleTitle()
+    db.query("UPDATE employee SET role_id = ? WHERE employee.id = ?",
+    [roleID, employeeID],
+    function (err, results) {
+        (console.log("This employee has been updated"))
+    })
+}
+
+function getDepartmentIDFromName() {
+    db.query("SELECT id FROM department WHERE name = ?",
+    answers.deptName,
+    function(err, results) {
+        return
+    })
+}
+
+function addRole() {
+    var deptID = getDepartmentIDFromName()
+    db.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
+    [answers.roleName, answers.roleSalary, deptID],
+    function(err, results) {
+        console.log("This role has been added.")
+    })    
+}
+
+function addDepartment() {
+    db.query("INSERT INTO department (name) VALUES (?),",
+     answers.deptName,
+     function(err, results) {
+        console.log("The department has been added.")
+     })
 }
