@@ -22,19 +22,19 @@ function init() {
             addEmployee()
         }
         if (answers = "Update Employee Role"){
-           questionUpdateRole()
+           promptUpdateRole()
         }
         if (answers = "View All Roles"){
             printAllRoles()
         }
         if (answers = "Add a Role"){
-            questionAddRole()
+            promptAddRole()
         }
         if (answers = "View All Departments"){
             printAllDepartments()
         }
         if (answers = "Add Department"){
-            questionAddDept()
+            promptAddDept()
         }
         if (answers = "Quit"){
            
@@ -54,13 +54,13 @@ const questionMainMenu =[
         message: 'What would you like to do?',
         choices:
         [
-            'View All Employees', // if chosen, run query to show all employee info
-            'Add Employee', // if chosen run the prompts questionAddEmployee
-            'Update Employee Role', // if chosen run the prompts questionUpdateRole
-            'View All Roles', // if chosen run query to show all roles
-            'Add a Role', // if chosen run prompts questionAddRole
-            'View All Departments', // if chosen, run query to show all departments
-            'Add Department', // if chosen run prompts questionAddDept
+            'View All Employees',
+            'Add Employee',
+            'Update Employee Role',
+            'View All Roles',
+            'Add a Role',
+            'View All Departments', 
+            'Add Department',
             'Quit',
         ]
     },
@@ -137,24 +137,24 @@ const questionAddEmpl = [
 
 //Sub Question prompts
 
-function questionAddEmpl(){
+function promptAddEmpl(){
     inquirer.prompt(questionAddEmpl).then((answers) => {
         addEmployee()
     })
 }   
 
 
-function questionUpdateRole() {
+function promptUpdateRole() {
     inquirer.prompt(questionUpdateRole).then((answers) => {
         updateEmployeeRole()
     })
 }
-function questionAddRole(){
+function promptAddRole(){
     inquirer.prompt(questionAddRole).then((answers) => {
         addRole()            
     })   
 }
-function questionAddDept() {
+function promptAddDept() {
     inquirer.prompt(questionAddDept).then((answers) => {
         addDepartment()
     }) 
