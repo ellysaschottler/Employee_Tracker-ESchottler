@@ -19,28 +19,22 @@ function init() {
             printAllEmployees()
         }
         if (answers = "Add Employee"){
-            inquirer.prompt(questionAddEmpl).then((answers) => {
             addEmployee()
-            }   
+        }
         if (answers = "Update Employee Role"){
-            inquirer.prompt(questionUpdateRole).then((answers) => {
-            updateEmployeeRole()
-            })
+           questionUpdateRole()
         }
         if (answers = "View All Roles"){
             printAllRoles()
         }
         if (answers = "Add a Role"){
-            inquirer.prompt(questionAddRole).then((answers) => {
-            addRole()            
-            })   
+            questionAddRole()
         }
         if (answers = "View All Departments"){
             printAllDepartments()
         }
         if (answers = "Add Department"){
-            inquirer.prompt(questionAddDept).then((answers) => {
-            addDepartment()
+            questionAddDept()
         }
         if (answers = "Quit"){
            
@@ -96,31 +90,22 @@ const questionAddRole = [
         type: 'list',
         name: 'roleDept',
         message: 'Which department does the role belong to?',
-        choices:
-        [
-        db.query("SELECT name FROM department")
-        ]
+        choices: listAllDepartments()
     },
 ]
-// THEN I am prompted to select an employee to update and their new role and this information is updated in the database
+
 const questionUpdateRole = [
    { 
         type: 'list',
         name: 'employeeChoice',
         message: 'Which employee you like to update?',
-        choices: 
-        [
-        db.query("SELECT CONCAT(employee.first_name , ' ', employee.last_name) AS full_name FROM employee")
-        ]
+        choices: listEmployeeFullName()
     },
     { 
         type: 'list',
         name: 'roleChoice',
         message: 'What is the new role?',
-        choices:
-        [
-        db.query("SELECT title FROM role")
-        ]
+        choices: listAllRoles()
     },
     
 ]
@@ -139,21 +124,41 @@ const questionAddEmpl = [
         type: 'list',
         name: 'emplRole',
         message: "What is the employee's role?",
-        choices:
-        [
-        db.query("SELECT title FROM role")
-        ]
+        choices: listAllRoles()
     },
     {
         type: 'list',
         name: 'emplManager',
         message: "Who is the employee's manager?",
-        choices:
-        [
-        db.query("SELECT CONCAT(m.first_name , ' ', m.last_name) AS manager FROM employee AS e LEFT JOIN employee AS m ON e.manager_id = m.id WHERE m.first_name IS NOT NULL")
-        ]
+        choices: listManagerFullName()
     }
 ]
+
+
+//Sub Question prompts
+
+function questionAddEmpl(){
+    inquirer.prompt(questionAddEmpl).then((answers) => {
+        addEmployee()
+    })
+}   
+
+
+function questionUpdateRole() {
+    inquirer.prompt(questionUpdateRole).then((answers) => {
+        updateEmployeeRole()
+    })
+}
+function questionAddRole(){
+    inquirer.prompt(questionAddRole).then((answers) => {
+        addRole()            
+    })   
+}
+function questionAddDept() {
+    inquirer.prompt(questionAddDept).then((answers) => {
+        addDepartment()
+    }) 
+}
 
 //Query functions
 function printAllEmployees(){
@@ -170,10 +175,35 @@ function printAllRoles() {
     })
 }
 
+function listAllRoles() {
+    db.query("SELECT title FROM role",
+    function (err, results) {
+        return
+    })
+}
+
 function printAllDepartments() {
     db.query("SELECT name FROM department",
     function(err, results) {
         console.table(results)
+    })
+}
+function listAllDepartments() {
+    db.query("SELECT name FROM department",
+    function(err, results) {
+        return
+    })
+}
+function listEmployeeFullName(){
+    db.query("SELECT CONCAT(employee.first_name , ' ', employee.last_name) AS full_name FROM employee",
+    function(err, results) {
+        return
+    })
+}
+function listManagerFullName(){
+    db.query("SELECT CONCAT(m.first_name , ' ', m.last_name) AS manager FROM employee AS e LEFT JOIN employee AS m ON e.manager_id = m.id WHERE m.first_name IS NOT NULL",
+    function (err, results) {
+        return
     })
 }
 
@@ -188,7 +218,8 @@ function getManagerIDfromName () {
      })
 }
 function getRoleIDfromRoleTitle() {
-    db.query("SELECT id FROM role WHERE name = ?" answers.roleChoice,
+    db.query("SELECT id FROM role WHERE name = ?",
+    answers.roleChoice,
     function(err, results) {
         return
     })
@@ -197,7 +228,8 @@ function getRoleIDfromRoleTitle() {
 function addEmployee() {
     managerID = getManagerIDfromName()
     roleID = getRoleIDfromRoleTitle()
-    db.query("INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ?, ?, ?, ?" [answers.emplFirstName, answers.emplLastName, managerID, roleID],
+    db.query("INSERT INTO employee (first_name, last_name, manager_id, role_id) VALUES ?, ?, ?, ?",
+    [answers.emplFirstName, answers.emplLastName, managerID, roleID],
     function (err, results) {
         console.log("This employee has been added.")
     }) 
@@ -242,7 +274,7 @@ function addRole() {
 }
 
 function addDepartment() {
-    db.query("INSERT INTO department (name) VALUES (?),",
+    db.query("INSERT INTO department (name) VALUES (?)",
      answers.deptName,
      function(err, results) {
         console.log("The department has been added.")
