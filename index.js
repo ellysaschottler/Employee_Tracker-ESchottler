@@ -25,8 +25,11 @@ async function init() {
                 'Update Employee Role',
                 'View All Roles',
                 'Add a Role',
+                'Delete a Role',
                 'View All Departments', 
                 'Add Department',
+                'Delete a Department',
+                'View Utilized Budget by Department',
                 'Quit',
             ]
         },
@@ -46,10 +49,16 @@ async function init() {
             await printAllRoles()
         } else if (answer == "Add a Role") {
             await promptAddRole(answers)
+        } else if (answer == "Delete a Role") {
+            await promptDeleteRole()
         } else if (answer == "View All Departments") {
             await printAllDepartments()
         } else if (answer == "Add Department") {
             await promptAddDept(answers)
+        } else if (answer == "Delete a Department") {
+            await promptDeleteDept(answers)
+        } else if (answer == "View Utilized Budget by Department") {
+            await printBudget(answers)
         } else if (answer == "Quit") {
             break;
         }
@@ -103,14 +112,14 @@ async function promptUpdateRole() {
          },
          { 
              type: 'list',
-             name: 'roleChoice',
+             name: 'emplRole',
              message: 'What is the new role?',
              choices: await listAllRoleTitles()
          },
          
     ]
 
-    const subAnswers = inquirer.prompt(questionUpdateRole)
+    const subAnswers = await inquirer.prompt(questionUpdateRole)
     await updateEmployeeRole(subAnswers)
 }
 
@@ -118,7 +127,7 @@ async function promptAddRole(){
     const questionAddRole = [
         {
             type: 'input',
-            name: 'roleChoice',
+            name: 'emplRole',
             message: 'What is the name of the role?',
         },
         {
@@ -134,9 +143,25 @@ async function promptAddRole(){
         },
     ]
 
-    const subAnswers = inquirer.prompt(questionAddRole)
-    await addRole(subAnswers)
+    const subAnswers = await inquirer.prompt(questionAddRole)
+    await addRole(subAnswers.emplRole, subAnswers.roleSalary, subAnswers.roleDept)
 }
+
+
+async function promptDeleteRole(){
+    const questionDeleteRole = [
+        { 
+            type: 'list',
+            name: 'role',
+            message: 'Which role do you want to delete?',
+            choices: await listAllRoleTitles()
+        },
+    ]
+
+    const subAnswers = await inquirer.prompt(questionDeleteRole)
+    await deleteRole(subAnswers.role)
+}
+
 async function promptAddDept() {
     const questionAddDept = [
         {
@@ -147,7 +172,21 @@ async function promptAddDept() {
     ]
 
     const subAnswers = await inquirer.prompt(questionAddDept)
-    await addDepartment(subAnswers)
+    await addDepartment(subAnswers.deptName)
+}
+
+async function promptDeleteDept() {
+    const questions = [
+        {
+            type: 'list',
+            name: 'deptName',
+            message: 'What department do you want to delete?',
+            choices: await listAllDepartments()
+        },
+    ]
+
+    const subAnswers = await inquirer.prompt(questions)
+    await deleteDepartment(subAnswers.deptName)
 }
 
 //Query functions
@@ -161,8 +200,32 @@ async function printAllRoles() {
     console.table(roles)
 }
 
+async function printBudget(){
+    const [rows, fields] = await db.execute(`
+        SELECT 
+            d.name AS department_name,
+            SUM(r.salary) AS total_utilized_budget
+        FROM
+            employee AS e 
+            INNER JOIN role AS r ON e.role_id = r.id 
+            INNER JOIN department AS d ON d.id = r.department_id
+        GROUP BY
+            d.id,
+            d.name
+    `)
+    console.table(rows)
+}
+
 async function listAllRoles() {
-    const [rows, fields] = await db.execute("SELECT title FROM role")
+    const [rows, fields] = await db.execute(`
+        SELECT 
+            title,
+            salary,
+            d.name AS department_name 
+        FROM 
+            role AS r 
+            INNER JOIN department AS d on r.department_id = d.id
+    `)
     return rows
 }
 
@@ -212,29 +275,44 @@ async function addEmployee(subAnswers) {
 
 async function updateEmployeeRole(subAnswers) {
     var employeeID = await getEmployeeIDFromName(subAnswers.employeeChoice)
-    var roleID = await getRoleIDFromTitle(subAnswers.roleChoice)
+    var roleID = await getRoleIDFromTitle(subAnswers.emplRole)
     await db.execute("UPDATE employee SET role_id = ? WHERE employee.id = ?", [roleID, employeeID])
 
     console.log("This employee has been updated")
 }
 
-function getDepartmentIDFromName(subAnswers) {
-    return db.execute("SELECT id FROM department WHERE name = ?", [subAnswers.deptName])
+// function getDepartmentIDFromName(subAnswers) {
+//     return db.execute("SELECT id FROM department WHERE name = ?", [subAnswers.deptName])
+// }
+
+async function getDepartmentIDFromName(deptName) {
+    const [rows, fields] = await db.execute("SELECT id FROM department WHERE name = ?", [deptName])
+    return rows[0].id
 }
 
-async function addRole(subAnswers) {
-    var deptID = getDepartmentIDFromName()
+
+async function addRole(name, salary, departmentName) {
+    var deptID = await getDepartmentIDFromName(departmentName)
     await db.execute(
         "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
-        [subAnswers.roleName, subAnswers.roleSalary, deptID])
+        [name, salary, deptID])
     
     console.log("This role has been added.")
 }
 
-async function addDepartment(subAnswers) {
-    await db.execute("INSERT INTO department (name) VALUES (?)", [subAnswers.deptName])
+async function deleteRole(roleTitle) {
+    await db.execute("DELETE FROM role WHERE title = ?", [roleTitle])
+    console.log(`${roleTitle} role has been deleted.`)
+}
 
+async function addDepartment(name) {
+    await db.execute("INSERT INTO department (name) VALUES (?)", [name])
     console.log("The department has been added.")
+}
+
+async function deleteDepartment(name) {
+    await db.execute("DELETE FROM department WHERE name = ?", [name])
+    console.log(`${name} department has been deleted.`)
 }
 
 init()
